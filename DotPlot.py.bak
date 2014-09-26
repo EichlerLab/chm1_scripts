@@ -1,0 +1,314 @@
+#!/usr/bin/env python
+import pandas
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import re
+from Bio import SeqIO
+from Bio import SeqRecord
+from Bio import Seq
+import argparse
+import matplotlib.lines as mlines
+import math
+import numpy as np
+import tempfile
+import subprocess
+import os
+import Tools
+import pdb
+
+def IndexSeq(seq, k):
+    index = {}
+    for i in range(len(seq)- k + 1):
+        kmer = seq[i:i+k]
+        if (kmer not in index):
+            index[kmer] = []
+        index[kmer].append(i)
+    return index
+
+def DotDirectional(query, targetIndex, k, d):
+    hits = []
+    for i in range(len(query) - k + 1):
+        word = query[i:i+k]
+        if (word in targetIndex):
+            for pos in targetIndex[word]:
+                hits.append((i, pos, d))
+    return hits
+
+def DotPlot(query, target, k):
+    targetIndex = IndexSeq(target.upper(),k)
+    forward = DotDirectional(query, targetIndex, k, 0)
+    revTarget = Seq.Seq(target).reverse_complement().tostring().upper()
+    revTargetIndex= IndexSeq(revTarget, k)
+    reverse = DotDirectional(query, revTargetIndex, k, 1)
+    return forward + reverse    
+
+queryCoordRe = re.compile('(.*)_(\d+)_(\d+)/.*')
+
+ap = argparse.ArgumentParser(description = "make a dot plot")
+
+ap.add_argument("--query", help="Read the query sequence.  Specify a read using read:bas_fil_name.bas.h5:hole_number", required=True)
+ap.add_argument("--target", help="Read the target sequence.", required=True)
+ap.add_argument("--matches", help="Read the matches (m1 format), or dot:k to do a simple dot plot", required=False, default=None)
+ap.add_argument("--savefig", help="Write figure to a file.", default=None)
+ap.add_argument("--region", help="Specify a region in the format ref:start-end .",default=None)
+ap.add_argument("--blpath", help="Path to alternate blasr.", default="")
+args = ap.parse_args()
+
+
+tmpFiles = []
+
+# set up query information
+if (args.query[0:4] == "bas:"):
+    # The input is a read, not a fasta file, extract that for the run.
+
+    readValues = args.query.split(':')
+    basName    = readValues[1]
+    holeNumber = int(readValues[2])
+    tmpQueryName = tempfile.mktemp(suffix=".query.fasta", dir=".")
+    tmpQuery = open(tmpQueryName, 'w')
+    tmpFiles.append(tmpQueryName)
+    command = "/net/eichler/vol5/home/mchaisso/software/blasr_1/cpp/pbihdfutils/bin/pls2fasta {} {} -holeNumber {} -trimByRegion".format(basName, tmpQueryName, holeNumber)
+    print command
+    args.query = tmpQueryName
+    print "extracing read to " + tmpQueryName
+    subprocess.call(command.split())
+
+# set up taget
+
+if (args.region is not None):
+    faiFileName = args.target + ".fai"
+    if (os.path.exists(faiFileName) == False):
+        print "Error, when using a region there must be an associated .fai file."
+        sys.exit(1)
+    targetfd = file(args.target, 'r')
+    fai = Tools.ReadFAIFile(faiFileName)
+    seq = Tools.ExtractSeq(Tools.ParseRegionStr(args.region), targetfd, fai)
+    tmpTargetName = tempfile.mktemp(suffix=".target.fasta", dir=".")
+    tmpTarget = open(tmpTargetName, 'w')
+    tmpFiles.append(tmpTargetName)
+    record = SeqRecord.SeqRecord(Seq.Seq(seq), name="",id=args.region,description="")
+    SeqIO.write(record, tmpTarget, "fasta")
+    targetName = tmpTarget.name
+    tmpTarget.close()
+    args.target = targetName
+
+if (args.matches == None):
+    # it is necessary to generate the matches
+    targetName = args.target
+    matchFileName = tempfile.mktemp(suffix=".m4", dir=".")
+    matchFile = open(matchFileName, 'w')
+    tmpFiles.append(matchFileName)
+    args.matches = matchFileName
+    blasrExe = args.blpath + "blasr"
+    command = "{} {} {} -m 1 -out {} -bestn 100 -noPrintSubreadTitle ".format(blasrExe, args.query, args.target, args.matches)
+    print command
+    subprocess.call(command.split())
+elif (args.matches[0:4] == "dot:"):
+    vals = args.matches.split(":")
+    k = int(vals[1])
+    queryFile = open(args.query, 'r')
+    targetFile = open(args.target, 'r')
+    matchFileName = tempfile.mktemp(suffix=".m4", dir=".")
+    matchFile = open(matchFileName, 'w')
+    tmpFiles.append(matchFileName)
+    args.matches = matchFileName
+    for query in SeqIO.parse(queryFile, "fasta"):
+        for target in SeqIO.parse(targetFile, "fasta"):
+            matches = DotPlot(query.seq.tostring(), target.seq.tostring(), k)
+            lenQuery = len(query)
+            lenTarget = len(target)
+            print "writing " + str(len(matches) ) + " matches "
+            for match in matches:
+#    0                                 1                2 3 4     5   6    7    8     9 10   11   12          
+#    scf7180000000013_1000_2000/0_1000 scf7180000000013 0 0 -5000 100 1000 2000 11963 0 1000 1000 20968
+
+                matchFile.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(query.id, target.id, 0, match[2], -100, 100, match[1], match[1]+k, lenTarget, match[0], match[0]+k, lenQuery, 1))
+    matchFile.close()
+            
+
+qf = open(args.query, 'r')
+tf = open(args.target, 'r')
+mf = open(args.matches, 'r')
+
+query  = list(SeqIO.parse(qf, "fasta"))
+target = list(SeqIO.parse(tf, "fasta"))
+queryDict = {q.name: len(q.seq) for q in query }
+targetDict = {t.name: len(t.seq) for t in target }
+queryNames = [q.name for q in query]
+targetNames = [t.name for t in target]
+numTargets = len(targetDict)
+queryLengths = [len(q.seq) for q in query]
+targetLengths = [len(t.seq) for t in target]
+
+
+targetCumSum = [0]*(len(target)+1)
+for i in range(len(target)):
+    targetCumSum[i+1] = targetCumSum[i] + len(target[i].seq)
+queryCumSum = [0]*(len(query) + 1)
+for i in range(len(query)):
+    queryCumSum[i+1] = queryCumSum[i] + len(query[i].seq)
+
+tFrac = [float(targetCumSum[i])/targetCumSum[-1] for i in range(len(targetCumSum)-1)]
+qFrac = [float(queryCumSum[i])/queryCumSum[-1] for i in range(len(queryCumSum)-1)]
+
+tStep = step=max(1,math.pow(10,math.floor(math.log10(targetCumSum[-1]))-1))
+qStep = step=max(1,math.pow(10,math.floor(math.log10(queryCumSum[-1]))-1))
+
+
+tTicks = [ np.arange(0, t, step=tStep) for t in targetLengths ]
+qTicks = [ np.arange(0, q, step=qStep) for q in queryLengths]
+
+
+tTickPositions = [ tTicks[i] + targetCumSum[i] for i in range(len(targetLengths))]
+qTickPositions = [ qTicks[i] + queryCumSum[i] for i in range(len(queryLengths))]
+
+ntTicks = sum(len(t) for t in tTicks)
+nqTicks = sum(len(q) for q in qTicks)
+
+
+def SetTickLists(raggedTicks, raggedTickOffset):
+    nticks = sum(len(t) for t in raggedTicks)
+    tickLayoutPos = [0]*nticks
+    tickLayoutText = [""] *nticks
+    idx = 0
+    for i in range(len(raggedTicks)):
+        for j in range(len(raggedTicks[i])):
+            tickLayoutPos[idx] = raggedTickOffset[i][j]
+            tickLayoutText[idx] = str(int(raggedTicks[i][j]))
+            idx+=1
+    return tickLayoutPos, tickLayoutText
+
+tLayoutPos, tLayoutText = SetTickLists(tTicks, tTickPositions)
+qLayoutPos, qLayoutText = SetTickLists(qTicks, qTickPositions)
+
+
+queryi = { queryNames[i] : i for i in range(len(queryNames))}
+targeti = {targetNames[i] : i for i in range(len(targetNames))}
+querycsd = { queryNames[i] : queryCumSum[i] for i in range(len(queryNames))}
+targetcsd = { targetNames[i] : targetCumSum[i] for i in range(len(targetNames))}
+
+
+
+class Match:
+    def __init__(self, qname, qfragstart, qfragend, qstrand, qstart, qend, qlen, tname, tstrand, tstart, tend, tlen, pctident):
+        self.qname = qname
+        self.qfragstart = qfragstart
+        self.qfragend = qfragend
+        self.qstrand = qstrand
+        self.qstart = qstart
+        self.qend = qend
+        self.qlen = qlen
+        self.tname = tname
+        self.tstrand = tstrand
+        self.tstart = tstart
+        self.tend = tend
+        self.tlen = tlen
+        self.pctident = pctident
+        
+
+def ParseMatchLine(ml):
+    mv = ml.split()
+# parse this format
+#    0                                 1                2 3 4     5   6    7    8     9 10   11   12          
+#    scf7180000000013_1000_2000/0_1000 scf7180000000013 0 0 -5000 100 1000 2000 11963 0 1000 1000 20968
+    qm = queryCoordRe.match(mv[0])
+    if (qm is not None):
+        g = qm.groups()
+        qname = g[0]
+        qfragstart = int(g[1])
+        qfragend   = int(g[2])
+    else:
+        qname = mv[0]
+        qfragstart = 0
+        qfragend = int(mv[11])
+
+    tname = mv[1]
+    qstrand = int(mv[2])
+    tstrand = int(mv[3])
+    pctident = float(mv[5])
+    tstart  = int(mv[6])
+    tend    = int(mv[7])
+    tlen    = int(mv[8])
+    qstart  = int(mv[9])
+    qend    = int(mv[10])
+    qlen    = int(mv[11])
+    return Match(qname, qfragstart, qfragend, qstrand, qstart, qend, qlen, tname, tstrand, tstart, tend, tlen, pctident)
+
+
+def SetPlotCoordinates(match, querycs, targetcs, queryi, targeti):
+    qi = queryi[match.qname]
+    ti = targeti[match.tname]
+
+    queryRangeStart= querycs[qi]
+    queryRangeEnd  = querycs[qi+1]
+    targetRangeStart = targetcs[ti]
+    targetRangeEnd = targetcs[ti+1]
+    # Shift the query coordinates to be relative to the 
+    qStart = match.qfragstart + match.qstart
+    qEnd   = match.qfragstart + match.qend
+    
+    # now handle strand orientation
+    tStart = match.tstart
+    tEnd   = match.tend
+    if (match.tstrand == 1):
+        tStart = match.tlen - match.tend
+        tEnd   = match.tlen - match.tstart
+        temp = qStart
+        qStart = qEnd
+        qEnd   = temp
+    tStart += targetRangeStart
+    tEnd   += targetRangeStart
+    qStart += queryRangeStart
+    qEnd   += queryRangeStart
+    match.plTStart = tStart
+    match.plTEnd   = tEnd
+    match.plQStart = qStart
+    match.plQEnd   = qEnd
+matches = []
+for matchLine in mf:
+    m = ParseMatchLine(matchLine)
+    if (m is not None):
+        SetPlotCoordinates(m, queryCumSum, targetCumSum, queryi, targeti)
+        matches.append(m)
+
+cmap = plt.get_cmap('jet')
+#gs = gridspec.GridSpec(len(query), len(target), width_ratios=targetLengths, height_ratios=queryLengths)
+gsi = 0
+rects = [mlines.Line2D([m.plTStart, m.plTEnd], [m.plQStart, m.plQEnd], color=cmap(1 + math.log(m.pctident/100.0)), lw=2.0) for m in matches]
+fig, ax = plt.subplots()
+for q in range(len(query)):
+    for t in range(len(target)):
+        for i in range(len(matches)):
+            plt.tight_layout()
+            if (queryi[m.qname] == q and targeti[m.tname] == t):
+                ax.add_line(rects[i])
+        gsi+=1
+            
+            
+ax.set_xticks(tLayoutPos)
+ax.set_xticklabels(tLayoutText, rotation=90)
+ax.set_yticks(qLayoutPos)
+ax.set_yticklabels(qLayoutText)
+plt.xlim(xmin=0, xmax=targetCumSum[-1]*1.01)
+plt.ylim(ymin=0, ymax=queryCumSum[-1]*1.01)
+
+for t in targetCumSum:
+    plt.axvline(t, linestyle='--', color='black')
+for q in queryCumSum:
+    plt.axhline(q, linestyle='--', color='black')
+
+
+if (args.savefig is not None):
+    plt.savefig(args.savefig)
+
+for i in range(len(target)):
+    plt.figtext(tFrac[i], 0.0, target[i].name)
+
+for tmpFile in tmpFiles:
+    command = "/bin/rm -f " + tmpFile
+    try:
+       subprocess.call(command.split())
+    except:
+        print "Cannot delete " + tmpFile
+
+plt.show()

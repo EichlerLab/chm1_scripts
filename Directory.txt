@@ -1,0 +1,102 @@
+Align.py 	
+ - simple SW implementation
+Align.pyc																 
+AlignConsensus.py
+ - Align quiver output to the genome, and find gaps.
+AnnotateCoverage.py
+  - print FLAG/ok 											 
+AnnotateGapBed.py
+  - Given a gapped bed file and repeat masker output for the gap sequences, add the annotations from the repeatmasker .out file to this the bed table.
+AssembleRegion.sh												 
+AssembleRegions.sh												 
+BinBPCoords.py
+  - Find clusters of breakpoints with split reads.
+BlasrSelfAlign.py
+  				 
+BlasrSelfAlign.sh 	
+BreakpointCluster.py 										 
+BuildConsensus.mak 	
+CheckInvTests.py 												 
+ClassifyRepeats.py 	
+ComputeCloneSize.py 	
+CountRestrictionSites.py 	
+DetectInversions.mak 	
+DetectInversions.py											 
+DotPlot.py
+  - Tool to dot plot two sequences, with many options.								 
+ExtractSeq.py 	   
+  - Using a .fai file, extract a fasta sequence
+FastBPCluster.py 		
+  - Cluster two sided breakpoints.																	
+FastBreakpointCluster.py  
+  - Not sure why this second one exists.	
+FastaToFakeFastq.py 	 
+  - Generate a fastq suitable for Celera assembly input.												FilterGaps.py 	 
+  - Filter gaps based on ratio of gap coverage to local genomic coverage.
+FilterHPGaps.py 	 
+  - A lot of false positive gaps in PacBio reads are homopolymers.  This can filter them out.
+FilterSupport.py 	
+FilterUniqueReads.py 	
+FindBasFiles.py 	
+FindJoined.py														 
+FindL1NearAlignments.py									 
+FindL1NearHardStops.py										 
+FindPairedSupport.py											 
+GC_content_explore.py										 
+GapBedToFasta.py													 
+GapSupportToFasta.py											 
+GetReadsInRegion.sh											 
+InSilicoDigest.py												 
+InsertionBedToConsensus.py								 
+MakeNameQuery.py 	
+MergeBed.py 	
+MergeGapSupport.py 	
+Overloading.py 	
+PickFirstCovEntry.py 	
+PickSeedRead.py 	
+PlotFrequency.py 	
+PlotSubreadHist.py 	
+
+PrintAssemblies.py
+  . Print the Celera assembly rgn_*/region/9-terminator/region.ctg.fasta
+
+PrintBedFlank.py 	
+  . Print a window of either the left side or right side of a bed interval.
+PrintBinAverage.py 	
+PrintBrokenAlignmets.py 	
+PrintChunkedGenomeRegions.py 	
+  . Print a number of regions from a genome
+PrintDisjointSplits.py 	
+PrintFastaGroups.py											 
+PrintFrequency.py												 
+PrintGapSupport.py												 
+PrintGaps.optimize.py										 
+PrintGaps.py															 
+PrintHardStop.py													 
+PrintReadsInRegion.csh										 
+PrintSAMSubset.py												 
+PrintSplitAlignmentCoordinates.py				 
+PrintSupportIdentity.py									 
+PrintTruncatedAlignments.py
+PrintUniqueReadSupport.py								 
+QueryNameListWithM1.py										 
+QuickDotPlot.py													 
+QuiverRegion.py 	
+R-plot_commands.txt 	
+RegionToFasta.py 	
+ReorderClusters.py 	
+ResultsTableToGraph.py 	
+RunDotPlots.csh 	
+RunDotPlots.py 	
+SamCons.py 	
+SamToBed.py 	
+SamToFasta.py 	
+SearchDeletions.cpp 	
+SummarizeFromAlignments.py 	
+TakeTopHitFromSAM.py 	
+TitlesToFileIndex.py											 
+Tools.py																	 
+Tools.pyc 	
+TopHitOnly.py 	
+awk_commands.txt 	
+

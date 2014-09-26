@@ -1,0 +1,5 @@
+samtools view -bS -q 20 assemblies.fasta.sam | samtools sort - assemblies.fasta.minqv20 
+
+~/projects/mcst/hardstop assemblies.fasta.minqv20.bam 300 assemblies.fasta.minqv20.hs.bed 
+
+chr2:111,139,870-111,177,190

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+cut -f 3 $1 | ~/software/ascii_plots/hist 

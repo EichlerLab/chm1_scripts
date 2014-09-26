@@ -1,0 +1,15 @@
+# Print entries in a sam file that are primary hits, uniquely mapping (more or less)
+awk '{ if (substr($1,0,1) != "@" && $2 < 256  && $4 > 30) print $1"\t"$4"\t"$4+$9"\t"$14"\t"$15; }'
+
+
+# print alignment length for primary alingments
+awk '{ if (substr($1,0,1) != "@" && $2 < 256  && $4 > 30) print $9; }'
+
+# print alignment legnth for all high mapqv alignments
+cat m*.sam | awk '{ if (substr($1,0,1) != "@" && $4 > 30) print $9; }' | add.pl
+
+# transform bed into regions
+
+awk '{ print $1":"$2"-"$3 }'
+
+

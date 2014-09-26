@@ -1,0 +1,14 @@
+
+
+
+# plot coverage of insert versus coverage in region.
+plot(t$V1,t$V2,xlab="Insertion spanning reads", ylab="Average coverage in region", pch=21,bg=rgb(0,102,204,255,maxColorValue=255), log="xy", cex=0.5,col=rgb(0,76,153,255,maxColorValue=255), main="Insertion count versus coverage")
+
+
+# general histogram with nicer colors than black and white
+hist(t$V1,xlab="Insertion support", ylab="Count", col=rgb(0,102,204,255,maxColorValue=255), bg=rgb(0,76,153,255,maxColorValue=255), main="")
+
+h <- hist(t$v1[lc], breaks=100, plot=FALSE)
+plot(h$mids, h$density, log="y", type='b')
+barplot(h$mids, h$density, log="y", col=rgb(0,102,204,255,maxColorValue=255), bg=rgb(0,76,153,255,maxColorValue=255))
+barplot(h$density, log="y", col=rgb(0,102,204,255,maxColorValue=255), bg=rgb(0,76,153,255,maxColorValue=255))

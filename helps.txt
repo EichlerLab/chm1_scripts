@@ -1,0 +1,730 @@
+AlignConsensus.py
+usage: AlignConsensus.py [-h] [--chunk CHUNK] [--exe EXE] fasta genome tmpdir
+
+Look for gaps in quiver consensi.
+
+positional arguments:
+  fasta          Quiver consensus fasta
+  genome         Reference genome.
+  tmpdir         Work in this dorectory.
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --chunk CHUNK  Split consensus into this chunk size
+  --exe EXE      Path to blasr executables.
+AnnotateCoverage.py
+usage: AnnotateCoverage.py [-h] [--sigma SIGMA] [--span SPAN] [--mean MEAN]
+                           [--covi COVI]
+                           cov out
+
+positional arguments:
+  cov            Coverage bed
+  out            Output coverage
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --sigma SIGMA  Miminum standard deviation to flag [2].
+  --span SPAN    Minmal span to flag (not yet implemented) [1000].
+  --mean MEAN    Force this as mean [compute].
+  --covi COVI    Coverage column [3]
+AnnotateGapBed.py
+usage: AnnotateGapBed.py bedIn bedOut annotation.out
+BedToIndexRegion.py
+BinBPCoords.py
+usage: BinBPCoords.py [-h] [--min MIN] [--ucsc] [--expand EXPAND]
+                      coords fai col bin
+
+Bin bp coordinates.
+
+positional arguments:
+  coords           Bed file of coordinates.
+  fai              index of genome.
+  col              which column to cluster [1 or 2]
+  bin              Bin size
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --min MIN        Min bin count to print (2)
+  --ucsc           Print coordinates in UCSC browser compatible format.
+  --expand EXPAND  Widen the coordiantes by this.
+BreakpointCluster.py
+usage: BreakpointCluster.py [-h] [--delta DELTA] [--minSupport MINSUPPORT]
+                            table left left right right out
+
+Cluster breakpoints.
+
+positional arguments:
+  table                 Input tabular file
+  left                  Left clusters.
+  right                 Right clusters.
+  out                   Output file, - implies stdout
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --delta DELTA         Allowable gap between endponts.
+  --minSupport MINSUPPORT
+                        Min overlapping clusters
+CheckInvTests.py
+usage: CheckInvTests.py [-h] [--plot PLOT] [--dir DIR] input
+
+Check for sequences that are better in the inverted orientation, using blasr
+m4 output.
+
+positional arguments:
+  input        Alignments in m4 format. This should be the alignment of
+               sequences output by DetectInversions.py
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --plot PLOT  Print commands to dotplot these reads.
+  --dir DIR    Source dir of bas/bax.h5 files.
+ClassifyRepeats.py
+usage: ClassifyRepeats.py [-h] [--fraction FRACTION] table
+
+count masked repeats.
+
+positional arguments:
+  table                Repeat table.
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --fraction FRACTION  Calls must be at least this fraction to be made.
+ClusterSplitReads.py
+usage: ClusterSplitReads.py [-h] [--min MIN] table li ri
+
+Cluster breakpoints hit by split reads.
+
+positional arguments:
+  table       bed file of split read coordinates. Fields 1-8 are for the lower
+              coordinate, and 9-16 are the right coordiantes, with the bed
+              fields in positions 1-3, and 9-12.
+  li          left intervals
+  ri          right intervals
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --min MIN   Only print clusters with at least this count.
+ComputeCloneSize.py
+usage: ComputeCloneSize.py [-h] [-n N] [-M M] [-m M] bam
+
+Compute expected insert size
+
+positional arguments:
+  bam         Input bam file.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -n N        Num samples
+  -M M        Max isize
+  -m M        Max isize
+CountRestrictionSites.py
+usage: CountRestrictionSites.py [-h] [--motifs MOTIFS [MOTIFS ...]]
+                                [--printAll]
+                                sequence
+
+Count some statistics about restriction cut sites from either reads or
+contigs.
+
+positional arguments:
+  sequence              Input sequence
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --motifs MOTIFS [MOTIFS ...]
+                        Restriction recognitition sequences.
+  --printAll            Print all counts
+DetectInversions.py
+usage: DetectInversions.py [-h] --sam SAM [SAM ...] [--out OUT]
+                           [--stride STRIDE] [--start START] [--tests TESTS]
+
+Find inversions in SAM files.
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --sam SAM [SAM ...]  Input sam files.
+  --out OUT            Output file, - = stdout
+  --stride STRIDE      Skip every N files.
+  --start START        Starting file.
+  --tests TESTS        Write test seqeunces out to this file. For every test
+                       there is the forward aligned sequence, and the forward
+                       sequence with the inversion reversed.
+DotPlot.py
+usage: DotPlot.py [-h] --query QUERY [QUERY ...] --target TARGET
+                  [--matches MATCHES] [--savefig SAVEFIG] [--region REGION]
+                  [--blpath BLPATH] [--nodel] [--xlabel XLABEL]
+                  [--ylabel YLABEL] [--title TITLE] [--widen WIDEN]
+
+make a dot plot
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --query QUERY [QUERY ...]
+                        Read the query sequence. Specify a read using
+                        bas:bas_fil_name.bas.h5:hole_number
+  --target TARGET       Read the target sequence.
+  --matches MATCHES     Read the matches (m1 format), or dot:k to do a simple
+                        dot plot
+  --savefig SAVEFIG     Write figure to a file.
+  --region REGION       Specify a region in the format ref:start-end .
+  --blpath BLPATH       Path to alternate blasr.
+  --nodel               Do not delete temporary files.
+  --xlabel XLABEL       Override x label.
+  --ylabel YLABEL       Override y label.
+  --title TITLE         use this as a title.
+  --widen WIDEN         Widen the region.
+ExtractSeq.py
+usage: ExtractSeq.py [-h] [--out OUT] reference region [region ...]
+
+Fetch fasta sequences from indexed files.
+
+positional arguments:
+  reference   FAI indexed reference file.
+  region      UCSC style region (commas ok), or BED
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --out OUT   Write here, default is stdout.
+FastaToFakeFastq.py
+FilterHPGaps.py
+FilterSupport.py
+usage: FilterSupport.py [-h] [--me ME] [--Me ME] [--mc MC] [--Mc MC] [--mr MR]
+                        [--Mr MR] [--ie IE] [--ic IC] [--ml ML]
+
+Filter coverage bed, 5th field is hard stop, 9th is average coverage.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --me ME     Min event
+  --Me ME     Max event
+  --mc MC     Min coverage
+  --Mc MC     Max coverage
+  --mr MR     Min hard stop to coverage ratio
+  --Mr MR     Max hard stop to coverage ratio
+  --ie IE     Event index.
+  --ic IC     coverage index.
+  --ml ML     Accept all at least this length
+FilterUniqueReads.py
+FindBasFiles.py
+usage: FindBasFiles.py [-h] [--dir DIR] [--findex] [--dotplot] [filelist]
+
+Find an alignment file.
+
+positional arguments:
+  filelist    Barcode of read, long string staring with m1....
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dir DIR   Look here for file.
+  --findex    Write in findex format for input into writeHDFSubset.
+  --dotplot   Write in dotplot parameter format.
+FindJoined.py
+usage: FindJoined.py [-h] [--delta DELTA] left right
+
+using left and right coordinates of split alignments, try and find adjacent
+alignments
+
+positional arguments:
+  left           left bed.
+  right          right bed
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --delta DELTA  How close the sides should be.
+FindL1NearAlignments.py
+usage: FindL1NearAlignments.py [-h] [--window WINDOW] [--delta DELTA]
+                               [--covered COVERED] [--notcovered NOTCOVERED]
+                               l1 sam [sam ...]
+
+Find L1s near alignments.
+
+positional arguments:
+  l1                    L1 alignments in m1 format.
+  sam                   Input sam files.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --window WINDOW       Print this window around sides with line.
+  --delta DELTA         Restrict line matches to be this close to alignment
+                        ends.
+  --covered COVERED     If this l1 is fully contained in an alignment, print
+                        to a file.
+  --notcovered NOTCOVERED
+                        If this l1 is not covered by an alignment, print to
+                        this file.
+FindL1NearHardStops.py
+usage: FindL1NearHardStops.py [-h] l1 hs
+
+Find L1s near alignments.
+
+positional arguments:
+  l1          L1 alignments in m1 format.
+  hs          Input hard-stop cluster bed file. The 4th field is the reads
+              that align
+
+optional arguments:
+  -h, --help  show this help message and exit
+FindPairedSupport.py
+usage: FindPairedSupport.py table left-isect.bed right-isect.bed
+
+GapBedToFasta.py
+usage: GapBedToFasta.py [-h] [--seqidx SEQIDX] [--indelidx INDELIDX]
+                        bed insertion deletion
+
+Print gap sequences to fasta files.
+
+positional arguments:
+  bed                  Input bed file. Position of gap sequence defaults to 5
+  insertion            Output insertion file.
+  deletion             Output deletion file.
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --seqidx SEQIDX      Index of sequence. (5)
+  --indelidx INDELIDX  Index of insertion/deletion annotaiton. (3)
+GapSupportToFasta.py
+GetRegionFromBed.py
+usage: GetRegionFromBed.py [-h] [--slop SLOP] [infile]
+
+Translate a region/bed line to a region.
+
+positional arguments:
+  infile       input or none for stdin
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --slop SLOP  Add/subtract this amount from each value.
+InsertionBedToConsensus.py
+usage: InsertionBedToConsensus.py [-h] [--path PATH] [--minSupport MINSUPPORT]
+                                  [--out OUT]
+                                  bed
+
+Try and create consensi of insertion evetns based on a BED that has all
+inesrtion sequences support in it.
+
+positional arguments:
+  bed                   BED file. The 5th column (index 4) should be the
+                        support, and 8-8+col[4] are sequences.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --path PATH           Path to gcon.
+  --minSupport MINSUPPORT
+                        Only call consensus with at least this many reads.
+  --out OUT             Write out here.
+InSilicoDigest.py
+usage: InSilicoDigest.py [-h] [--motifs MOTIFS [MOTIFS ...]]
+                         [--enzymes ENZYMES [ENZYMES ...]]
+                         [--contigs CONTIGS [CONTIGS ...]]
+
+Run an in-silico digest of a set of sequences.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --motifs MOTIFS [MOTIFS ...]
+                        Restriction site pattern (exact)
+  --enzymes ENZYMES [ENZYMES ...]
+                        Enzymes to search (eg. DraI, SwaI),
+  --contigs CONTIGS [CONTIGS ...]
+                        Input files (1 or more).
+MakeNameQuery.py
+usage: MakeNameQuery.py [-h] sam [sam ...]
+
+Print tabular version of alignments with intervals.
+
+positional arguments:
+  sam         Input sam files
+
+optional arguments:
+  -h, --help  show this help message and exit
+MergeBed.py
+MergeGapSupport.py
+usage: MergeGapSupport.py [-h] [--overlap OVERLAP] [--minSupport MINSUPPORT]
+                          table out
+
+Print gap support from output of PrintGaps.py.
+
+positional arguments:
+  table                 Input tabular file, stdin reads from cl.
+  out                   Output file, stdout implies stdout
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --overlap OVERLAP     Required overlap consistency
+  --minSupport MINSUPPORT
+                        Min overlapping clusters
+Overloading.py
+usage: Overloading.py [-h] [--sam SAM] [--verbose]
+
+Check for overloading of PacBio SMRTCells.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --sam SAM   Alignment file.
+  --verbose   Print verbose summaries of bad reads.
+PickFirstCovEntry.py
+PickSeedRead.py
+usage: PickSeedRead.py [-h] [--first FIRST] [--last LAST]
+                       [--side {left,right,inside}] [--filedir FILEDIR]
+                       [--seq SEQ]
+                       bam region [region ...]
+
+Select the read extending most into a gap.
+
+positional arguments:
+  bam                   Indexed file of alignments.
+  region                Region to align
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --first FIRST         Write the longest extending read to this file. If
+                        filedir is specified, this will be a .findex file
+                        suitable for input into writeHDFSubset.
+  --last LAST           If you're not first, you're last. Print all reads
+                        overlapping the region boundary that are not the
+                        longest extension to this file.
+  --side {left,right,inside}
+                        Side to find overhang. Inside implies within a region,
+                        not overlapping
+  --filedir FILEDIR     Look for read files in this dirctory, and write output
+                        in .findex format: file<tab>zmw
+  --seq SEQ             Print the read sequence from the bam and not the read
+                        name.
+PlotFrequency.py
+PlotSubreadHist.py
+PrintBedFlank.py
+usage: PrintBedFlank.py [-h] [--input INPUT] [--output OUTPUT] [--fai FAI]
+                        [--internal INTERNAL] [--external EXTERNAL]
+
+Print a window of either the left side or right side of a bed interval.
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --input INPUT        input file, or stdin
+  --output OUTPUT      output file, or stdout
+  --fai FAI            Read this fasta index to double check coordinates with
+                       chromosome size.
+  --internal INTERNAL  Use this much on side of the interval.
+  --external EXTERNAL  Add this much on outside of interval, for example,
+                       subtract from left interval.
+PrintBinAverage.py
+usage: PrintBinAverage.py [-h] [--inFile INFILE] [--outFile OUTFILE]
+                          [--window WINDOW]
+
+print average coverage in a region.
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --inFile INFILE    Read input from.
+  --outFile OUTFILE  Write here.
+  --window WINDOW    Window size
+PrintBrokenAlignmets.py
+usage: PrintBrokenAlignmets.py [-h] [--out OUT] [--window WINDOW]
+                               [--delta DELTA]
+                               sam [sam ...]
+
+Print hard-stop coordinates, with a little wiggle-room, and the read names.
+
+positional arguments:
+  sam              Input sam files.
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --out OUT        Output file, 'stdout' defaults to stdout
+  --window WINDOW  Print this window around a hard-stop sequence.
+  --delta DELTA    Minimum truncation to trigger a hard-stop
+PrintChunkedGenomeRegions.py
+usage: PrintChunkedGenomeRegions.py [-h] [--chrs CHRS [CHRS ...]]
+                                    [--start START] [--end END] [--size SIZE]
+                                    [--stride STRIDE]
+                                    fai
+
+print reigons using a .fai file
+
+positional arguments:
+  fai                   fai file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --chrs CHRS [CHRS ...]
+                        Print for these chromosomes,default is all.
+  --start START         Start position
+  --end END             End pos
+  --size SIZE           Print this size of chunk.
+  --stride STRIDE       Skip this many bases between chunks.
+PrintFastaGroups.py
+usage: PrintFastaGroups.py [-h] [--base BASE] [--size SIZE] fasta [fasta ...]
+
+Print groups of fasta files that add to a target size.
+
+positional arguments:
+  fasta        Input fasta files.
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --base BASE  Basename for output.
+  --size SIZE  Target size
+PrintFrequency.py
+usage: PrintFrequency.py [-h] --bam BAM --freq FREQ [--plot PLOT] [--max MAX]
+
+Print the nucleotide frequency of a pileup.
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --bam BAM    Input bam file.
+  --freq FREQ  Print the frequency to this file
+  --plot PLOT  Plot a SVG of the frequency
+  --max MAX    Limit alignments processed
+PrintGaps.optimize.py
+usage: PrintGaps.optimize.py [-h] [--minLength MINLENGTH] [--outFile OUTFILE]
+                             [--context CONTEXT] [--condense CONDENSE]
+                             [--tsd TSD]
+                             genome sam
+
+Print gaps in a SAM file.
+
+positional arguments:
+  genome                Genome file with a .fai
+  sam                   Sam file of alignment.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --minLength MINLENGTH
+                        Minimum gapLength.
+  --outFile OUTFILE     Print output here, default= stdout
+  --context CONTEXT     Print surrounding context
+  --condense CONDENSE   Pack indels if the matches separating them is less
+                        than this value.
+  --tsd TSD             Attempt to find Target Site Duplications at most this
+                        length
+PrintGaps.py
+usage: PrintGaps.py [-h] [--minLength MINLENGTH] [--outFile OUTFILE]
+                    [--context CONTEXT] [--condense CONDENSE] [--tsd TSD]
+                    genome sam [sam ...]
+
+Print gaps in a SAM file.
+
+positional arguments:
+  genome                Genome file with a .fai
+  sam                   Sam file of alignment.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --minLength MINLENGTH
+                        Minimum gapLength.
+  --outFile OUTFILE     Print output here, default= stdout
+  --context CONTEXT     Print surrounding context
+  --condense CONDENSE   Pack indels if the matches separating them is less
+                        than this value.
+  --tsd TSD             Attempt to find Target Site Duplications at most this
+                        length
+PrintGapSupport.py
+usage: PrintGapSupport.py [-h] [--overlap OVERLAP] [--minSupport MINSUPPORT]
+                          table out
+
+Print gap support from output of PrintGaps.py.
+
+positional arguments:
+  table                 Input tabular file
+  out                   Output file, stdout implies stdout
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --overlap OVERLAP     Required overlap consistency
+  --minSupport MINSUPPORT
+                        Min overlapping clusters
+PrintHardStop.py
+usage: PrintHardStop.py [-h] [--out OUT] [--window WINDOW] [--delta DELTA]
+                        [--minAlign MINALIGN] [--splitread SPLITREAD]
+                        sam [sam ...]
+
+Print hard-stop coordinates, with a little wiggle-room, and the read names.
+
+positional arguments:
+  sam                   Input sam files.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --out OUT             Output file, 'stdout' defaults to stdout
+  --window WINDOW       Print this window around a hard-stop sequence.
+  --delta DELTA         Minimum truncation to trigger a hard-stop
+  --minAlign MINALIGN   Minimum alignment length to consider.
+  --splitread SPLITREAD
+                        Write splitread alignments to this file.
+PrintRandomIntervals.py
+usage: PrintRandomIntervals fai nIntervals output
+PrintSAMSubset.py
+PrintSplitAlignmentCoordinates.py
+usage: PrintSplitAlignmentCoordinates.py [-h] [--sam SAM [SAM ...]]
+                                         [--allowInter] [--allowchrUn]
+                                         [--start START] [--stride STRIDE]
+                                         out
+
+Print the coordinates of alignments that are split in the genome.
+
+positional arguments:
+  out                  Output file, stdout implies stdout
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --sam SAM [SAM ...]  Input sam file
+  --allowInter         Allow inter chromosomal alignments.
+  --allowchrUn         Allow inter chromosomal alignments to chrUn.
+  --start START        First sam file to process in the list.
+  --stride STRIDE      Skip this many files.
+PrintSupportIdentity.py
+PrintTruncatedAlignments.2.py
+usage: PrintTruncatedAlignments.2.py [-h] [--minTrunc MINTRUNC]
+                                     [--minAlign MINALIGN] [--out OUT]
+                                     sam [sam ...]
+
+Print alignments (much) shorter than the expected read length.
+
+positional arguments:
+  sam                  Input SAM file (s)
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --minTrunc MINTRUNC  Minimal truncated length.
+  --minAlign MINALIGN  Minimal aligned length.
+  --out OUT            Write output here.
+PrintTruncatedAlignments.py
+usage: PrintTruncatedAlignments.py [-h] [--minTrunc MINTRUNC]
+                                   [--nextHit NEXTHIT] [--out OUT]
+                                   sam [sam ...]
+
+Print alignments (much) shorter than the expected read length.
+
+positional arguments:
+  sam                  Input SAM file (s)
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --minTrunc MINTRUNC  Minimal truncated length.
+  --nextHit NEXTHIT    Write the sequecne of the next hit to this file.
+  --out OUT            Write output here.
+PrintUniqueReadSupport.py
+QueryNameListWithM1.py
+usage: QueryNameListWithM1.py [-h] [--save SAVE] [--read] m1 table
+
+Query a name list using .m1 output
+
+positional arguments:
+  m1           M1 input.
+  table        Read Name table.
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --save SAVE  Save query here.
+  --read       Read query dictionary.
+QuiverRegion.py
+RegionToFasta.py
+usage: RegionToFasta.py [-h] [--out OUT] [--minqv MINQV] [--primary]
+                        [--max MAX]
+                        bam region [region ...]
+
+Select the read extending most into a gap.
+
+positional arguments:
+  bam            Indexed file of alignments.
+  region         Region to align
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --out OUT      Write to this file
+  --minqv MINQV  Minimum mapping quliaty
+  --primary      Only store primary values.
+  --max MAX      Maximum number of reads to extract
+ReorderClusters.py
+ResultsTableToGraph.py
+RunDotPlots.py
+usage: RunDotPlots.py [-h] [--j J] [--expand EXPAND] [--readcol READCOL]
+                      [--titlecol TITLECOL]
+                      mergedbed genome outdir readdir
+
+run a ton of dotplots
+
+positional arguments:
+  mergedbed            Bed file with events. The coordinates are of the event,
+                       and somewhere is a list of read names supporting the
+                       event, joined by ';'.
+  genome               Genome file.
+  outdir               Output dir
+  readdir              Where to look for reads.
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --j J, -j J          Number of threads
+  --expand EXPAND      Extend reference by this amount on either side
+  --readcol READCOL    Get read names from this column (3)
+  --titlecol TITLECOL  Read plot title from this column
+SamCons.py
+usage: SamCons.py [-h] [--k K] [--kgraph KGRAPH] [--rgraph RGRAPH]
+                  [--minCount MINCOUNT] [--delta DELTA]
+                  sam
+
+Build simple consensus from pairwise alignments.
+
+positional arguments:
+  sam                  Input sam file
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --k K                Block size.
+  --kgraph KGRAPH      Write the graph out.
+  --rgraph RGRAPH      Write the reads-graph out.
+  --minCount MINCOUNT  Only print vertices if they have at least this many out
+                       edges.
+  --delta DELTA        Wiggle room for alignment endpoints.
+SamToBed.py
+usage: SamToBed.py [-h] [--best] [--features FEATURES [FEATURES ...]]
+                   [--minqv MINQV]
+                   sam bed
+
+Print coordinates of possibly only one subread.
+
+positional arguments:
+  sam                   Input sam file.
+  bed                   Output bed file.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --best                Output only the best alignment
+  --features FEATURES [FEATURES ...]
+                        Additional features to annotate BED line
+  --minqv MINQV         Minimum mapping quality
+SummarizeFromAlignments.py
+usage: SummarizeFromAlignments.py [-h] [-F F] [-f F] [-v]
+                                  [--plotInsert PLOTINSERT]
+                                  [--plotReadlen PLOTREADLEN]
+                                  sam [sam ...]
+
+Summarize various aspects of alignments in SAM format.
+
+positional arguments:
+  sam                   Input.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -F F                  Exclude these flages.
+  -f F                  Include these flags.
+  -v                    Verbose output.
+  --plotInsert PLOTINSERT
+                        Plot insert size distribution to this file
+  --plotReadlen PLOTREADLEN
+                        Plot read length distribution to this file
+TakeTopHitFromSAM.py
+test1.py
+TitlesToFileIndex.py
+usage: TitlesToFileIndex.py [-h] [--dir DIR] [--fofn FOFN] titles output
+
+Print a file list using a bunch of read ids barcode/read/pos, by cutting first
+field of sam output.
+
+positional arguments:
+  titles       barcode/read/pos
+  output       file_name zmw
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --dir DIR    Use this directory for input files.
+  --fofn FOFN  Write fofn.
